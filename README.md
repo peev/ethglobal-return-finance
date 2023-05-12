@@ -1,6 +1,4 @@
-
-
-## Return.finance - 
+## Return.finance
 We enable mass adoption of DeFi by a user-friendly savings app that lets you earn up to a 10% APY on your fiat USD.
 
 ## Project Description
