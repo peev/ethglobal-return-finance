@@ -6,3 +6,24 @@ Return Finance is building a bridge between the worlds of TradFi and DeFi via a 
 
 Funds received from the traditional banking system are automatically converted into USDC through the Circel API and provided as liquidity to some of the leading trading and lending protocols such as Curve, AAVE, Uniswap and more comprehensive dApps such as yEarn, Convex and Conic Finance. 
 
+In a permissionless and fully-traceable way, the Return Finance smart contract receives the converted USDC and distributes it to various low-risk protocols following a predefined strategy. In future versions, the USDC will be swapped on the way in and way out for other stable currencies such as DAI and USDT to maximize the APY.
+
+![My Image](frontend/public/return-chart.jpg)
+
+For the scope of this hackathon, we developed a simple web interface that simulates the depositing of USDC via the Circle API and the very first version of our smart contract.
+
+More information about the project is available at https://return.finance/
+
+### Run Front End
+
+```bash
+npm install
+```
+and then
+
+```bash
+npm start
+```
+### Smart Contract 
+
+Live on Optimism: https://optimistic.etherscan.io/address/0xf68d87eb4a0b691cb186e6aae54b0870a3e4ef67
