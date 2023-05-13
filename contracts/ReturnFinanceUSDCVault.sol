@@ -28,14 +28,17 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
     error UnableToWithdraw(address token);
     error DepositFailed(address depositor, uint256 amount);
     error WithdrawFailed(address depositor, uint256 amount);
-
+    
+    // To ahcieve maximum security and compliance only whitelisted wallets can deposit funds 
+    // into the Return Vault Contract 
     modifier onlyWhitelist() {
         if (!whitelist[_msgSender()]) revert NotInWhitelist(_msgSender());
         _;
     }
 
     constructor() ERC4626(IERC20(usdcAddress)) ERC20(vaultName, vaultSymbol) {}
-
+ 
+    // Deposit user USDC into the Vault (typically from Circle wallet)
     function deposit(
         uint256 amount,
         address receiver
@@ -45,6 +48,7 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         emit DepositToVault(_msgSender(), amount, block.timestamp);
     }
 
+    // Withdraw user USDC from the Vault (typically from Circle wallet)
     function withdraw(
         uint256 amount,
         address receiver,
@@ -55,6 +59,7 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         emit WithdrawFromVault(_msgSender(), amount, block.timestamp);
     }
 
+    // Distribute deposited USDC across AAVE and yEarn Pools equally
     function _depositToPools(uint256 amount) internal {
         uint256 amountToDepositAave = (amount * aavePoolWeightBps) / 10000;
         IERC20(usdcAddress).approve(aaveV3Pool, amountToDepositAave);
@@ -71,6 +76,7 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         emit DepositToPools(amount, block.timestamp);
     }
 
+    // Withdraw deposited USDC from AAVE and yEarn Pools upon withdraw funciton call
     function _withdrawFromPools(uint256 amount) internal {
         uint256 amountToWithdrawAave = (amount * aavePoolWeightBps) / 10000;
         IAaveV3Pool(aaveV3Pool).withdraw(
@@ -87,7 +93,7 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
 
         emit WithdrawFromPools(amount, block.timestamp);
     }
-
+    // Add or remove addresses from the whitelist
     function toggleWhitelist(
         address whitelistedAddress,
         bool isWhitelisted
@@ -96,6 +102,7 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         emit AddressAddedToWhitelist(whitelistedAddress, block.timestamp);
     }
 
+    // Emergency witdraw the entire vault balance upon contract owner request
     function emergencyWithdraw(address token) external onlyOwner {
         if (token == address(0)) {
             (bool success, ) = owner().call{value: address(this).balance}("");
