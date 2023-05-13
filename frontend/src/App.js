@@ -15,9 +15,10 @@ const USDC_ADDRESS = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
 
 // Return Finance contract initialization
 const provider = new ethers.providers.Web3Provider(ethereum, "any");
-const RETURN_CONTRACT_ADDRESS = "0xad17a225074191d5c8a37b50fda1ae278a2ee6a2";
+const RETURN_CONTRACT_ADDRESS = "0xf68D87eb4A0B691cb186E6Aae54b0870A3E4ef67";
 
 const abi = require('./ERC20.json');
+const returnABI = require('./returnContractABI.json');
 
 const returnContract = new ethers.Contract(
 RETURN_CONTRACT_ADDRESS,
@@ -151,28 +152,30 @@ function App() {
     setAccounts(newAccounts);
   }
 
-  // withdraws 12 USDC to the Return smart contract
+  // withdraws 5 USDC to the Return smart contract
   async function withdrawUSDC() {
-    console.log(ethereum);
-    // const provider = await alchemy.
-
-    const tx = await returnContract.withdraw({
+    const signer = provider.getSigner();
+    const returnContract = new ethers.Contract(RETURN_CONTRACT_ADDRESS, returnABI, signer);
+    const tx = await returnContract.withdraw(
+      "5000000", accounts[0], accounts[0],
+      {
       from: accounts[0],
     });
     await tx.wait();
     updateBalances();
   }
 
-  // deposits 12 USDC to the Return smart contract
+  // deposits 5 USDC to the Return smart contract
   async function depositUSDC() {
     const signer = provider.getSigner();
-    const tx_params = {
+    const returnContract = new ethers.Contract(RETURN_CONTRACT_ADDRESS, returnABI, signer);
+    const tx = await returnContract.deposit(
+      "5053000", accounts[0],
+      {
       from: accounts[0],
-      to: RETURN_CONTRACT_ADDRESS,
-      value: "10000000000000000"
-    };
-
-
+    });
+    await tx.wait();
+    updateBalances();
   }
 
   return (
@@ -219,7 +222,7 @@ function App() {
             className="button"
             disabled={!isConnected || !onRightNetwork}
           >
-            Deposit 12 USDC
+            Deposit USDC
           </button>
 
       </div>
@@ -229,7 +232,7 @@ function App() {
             className="button"
             disabled={!isConnected || !onRightNetwork}
           >
-            Withdraw 12 USDC + Yield
+            Withdraw USDC
           </button>
       </div>  
     </div>
