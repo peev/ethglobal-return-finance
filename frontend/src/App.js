@@ -80,9 +80,9 @@ function App() {
 
       const USDC = new ethers.Contract(USDC_ADDRESS, abi, provider);
 
-      const walletBalance = await USDC.balanceOf(accounts[0]);
-      console.log("Balance is", (walletBalance/ 10 ** 18));
-      setWalletBalance(Number(walletBalance) / 10 ** 18);
+      var usdcBalance = await USDC.balanceOf(accounts[0]);
+      usdcBalance = ethers.utils.formatUnits(usdcBalance, "6");
+      setWalletBalance(Math.round(usdcBalance * 100) / 100);
     }
   }
 
@@ -113,8 +113,8 @@ function App() {
                     "https://rpc.ankr.com/optimism",
                   ],
                   nativeCurrency: {
-                    name: "Optimism",
-                    symbol: "OP",
+                    name: "Optimism Ether",
+                    symbol: "ETH",
                     decimals: 18,
                   },
                   blockExplorerUrls: ["https://optimistic.etherscan.io/"],
@@ -203,21 +203,25 @@ function App() {
           : "Not connected to MetaMask ❌"}
       </div>
       <div className="button-container">
-      <button
-            onClick={withdrawEther}
-            className="button"
-            disabled={!isConnected || !onRightNetwork}
-          >
-            Withdraw .01 ETH
-          </button>
+    
           <button
             onClick={depositEther}
             className="button"
             disabled={!isConnected || !onRightNetwork}
           >
-            Deposit .01 ETH
+            Deposit 12 USDC
           </button>
+
       </div>
+      <div className="button-container">
+          <button
+            onClick={withdrawEther}
+            className="button"
+            disabled={!isConnected || !onRightNetwork}
+          >
+            Withdraw 12 USDC + Yield
+          </button>
+      </div>  
     </div>
   );
 }
