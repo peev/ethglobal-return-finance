@@ -50,6 +50,18 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         emit WithdrawFromVault(_msgSender(), amount, block.timestamp);
     }
 
+        function _depositToPools(uint256 amount) internal {
+        uint256 amountToDepositAave = (amount * aavePoolWeightBps) / 10000;
+        IERC20(usdcAddress).approve(aaveV3Pool, amountToDepositAave);
+        IAaveV3Pool(aaveV3Pool).supply(
+            usdcAddress,
+            amountToDepositAave,
+            address(this),
+            0
+        );
+        emit DepositToPools(amount, block.timestamp);
+    }
+
     function pause() external onlyOwner {
         _pause();
     }
