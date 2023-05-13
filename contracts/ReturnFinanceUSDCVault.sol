@@ -24,14 +24,41 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
     address public aOptUSDC = 0x625E7708f30cA75bfd92586e17077590C60eb4cD;
     address public usdcYVault = 0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2;
 
-    error NotInWhitelist(address wrongAddress);
-    error UnableToWithdraw(address token);
-    error DepositFailed(address depositor, uint256 amount);
-    error WithdrawFailed(address depositor, uint256 amount);
-
     modifier onlyWhitelist() {
         if (!whitelist[_msgSender()]) revert NotInWhitelist(_msgSender());
         _;
     }
 
     constructor() ERC4626(IERC20(usdcAddress)) ERC20(vaultName, vaultSymbol) {}
+
+    function deposit(
+        uint256 amount,
+        address receiver
+    ) public override onlyWhitelist whenNotPaused returns (uint256 shares) {
+        shares = super.deposit(amount, receiver);
+        _depositToPools(amount);
+        emit DepositToVault(_msgSender(), amount, block.timestamp);
+    }
+
+    function withdraw(
+        uint256 amount,
+        address receiver,
+        address owner
+    ) public override onlyWhitelist whenNotPaused returns (uint256 shares) {
+        _withdrawFromPools(amount);
+        shares = super.withdraw(amount, receiver, owner);
+        emit WithdrawFromVault(_msgSender(), amount, block.timestamp);
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    event DepositToVault(address depositor, uint256 amount, uint256 time);
+    event WithdrawFromVault(address depositor, uint256 amount, uint256 time);
+
+}
