@@ -24,6 +24,11 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
     address public aOptUSDC = 0x625E7708f30cA75bfd92586e17077590C60eb4cD;
     address public usdcYVault = 0xaD17A225074191d5c8a37B50FdA1AE278a2EE6A2;
 
+    error NotInWhitelist(address wrongAddress);
+    error UnableToWithdraw(address token);
+    error DepositFailed(address depositor, uint256 amount);
+    error WithdrawFailed(address depositor, uint256 amount);
+
     modifier onlyWhitelist() {
         if (!whitelist[_msgSender()]) revert NotInWhitelist(_msgSender());
         _;
@@ -66,6 +71,54 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         emit DepositToPools(amount, block.timestamp);
     }
 
+    function _withdrawFromPools(uint256 amount) internal {
+        uint256 amountToWithdrawAave = (amount * aavePoolWeightBps) / 10000;
+        IAaveV3Pool(aaveV3Pool).withdraw(
+            usdcAddress,
+            amountToWithdrawAave,
+            address(this)
+        );
+        uint256 amountToWithdrawYearn = (amount * yearnPoolWeightBps) / 10000;
+        uint256 pricePerShare = IYearnVault(usdcYVault).pricePerShare();
+        uint256 usdcYVaultDecimals = 10 ** IYearnVault(usdcYVault).decimals();
+        uint256 amountToWithdrawYearnShares = (amountToWithdrawYearn *
+            usdcYVaultDecimals) / pricePerShare;
+        IYearnVault(usdcYVault).withdraw(amountToWithdrawYearnShares);
+
+        emit WithdrawFromPools(amount, block.timestamp);
+    }
+
+    function toggleWhitelist(
+        address whitelistedAddress,
+        bool isWhitelisted
+    ) external onlyOwner {
+        whitelist[whitelistedAddress] = isWhitelisted;
+        emit AddressAddedToWhitelist(whitelistedAddress, block.timestamp);
+    }
+
+    function emergencyWithdraw(address token) external onlyOwner {
+        if (token == address(0)) {
+            (bool success, ) = owner().call{value: address(this).balance}("");
+            if (!success) revert UnableToWithdraw(token);
+            emit EmergencyWithdraw(
+                token,
+                address(this).balance,
+                block.timestamp
+            );
+        } else {
+            bool transferSuccess = IERC20(token).transfer(
+                owner(),
+                IERC20(token).balanceOf(address(this))
+            );
+            if (!transferSuccess) revert UnableToWithdraw(token);
+            emit EmergencyWithdraw(
+                token,
+                IERC20(token).balanceOf(address(this)),
+                block.timestamp
+            );
+        }
+    }
+
     function pause() external onlyOwner {
         _pause();
     }
@@ -74,7 +127,21 @@ contract ReturnFinanceUSDCVault is ERC4626, Ownable, Pausable {
         _unpause();
     }
 
+    function totalAssets() public view override returns (uint256) {
+        uint256 pricePerShare = IYearnVault(usdcYVault).pricePerShare();
+        uint256 usdcYVaultDecimals = 10 ** IYearnVault(usdcYVault).decimals();
+
+        return
+            IERC20(usdcAddress).balanceOf(address(this)) +
+            IERC20(aOptUSDC).balanceOf(address(this)) +
+            (IERC20(usdcYVault).balanceOf(address(this)) * pricePerShare) /
+            usdcYVaultDecimals;
+    }
+
+    event AddressAddedToWhitelist(address whitelistedAddress, uint256 time);
+    event EmergencyWithdraw(address token, uint256 amount, uint256 time);
     event DepositToVault(address depositor, uint256 amount, uint256 time);
     event WithdrawFromVault(address depositor, uint256 amount, uint256 time);
-
+    event DepositToPools(uint256 amount, uint256 time);
+    event WithdrawFromPools(uint256 amount, uint256 time);
 }
