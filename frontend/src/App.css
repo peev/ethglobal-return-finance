@@ -68,12 +68,12 @@
 }
 
 .button {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   padding: 1rem 2rem;
-  background-color: #00bfff;
+  background-color: #2452b6;
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.3rem;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out;
   margin-right: 1rem;

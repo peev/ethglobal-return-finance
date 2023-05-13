@@ -10,19 +10,15 @@ const ethereum = MMSDK.getProvider();
 // This app will only work on Optimism
 const OPTIMISM_CHAIN_ID = "0xa";
 
+// Providing the USDC contract address on Optimism
+const USDC_ADDRESS = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+
 // Return Finance contract initialization
 const provider = new ethers.providers.Web3Provider(ethereum, "any");
 const RETURN_CONTRACT_ADDRESS = "0xad17a225074191d5c8a37b50fda1ae278a2ee6a2";
 
-const abi = [
-  {
-      "inputs": [],
-      "name": "withdraw",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-  },
-];
+const abi = require('./ERC20.json');
+
 const returnContract = new ethers.Contract(
 RETURN_CONTRACT_ADDRESS,
 abi,
@@ -58,6 +54,7 @@ function App() {
       if (isConnected) {
         setButtonText("Connected");
         setButtonDisabled(true);
+        updateBalances();
       } else {
         setButtonText("Connect");
         setButtonDisabled(false);
@@ -70,7 +67,6 @@ function App() {
     const chainId = await ethereum.request({
       method: "eth_chainId",
     });
-    console.log(chainId);
     if (chainId != 10) {
       setOnRightNetwork(false);
     } else {
@@ -78,17 +74,14 @@ function App() {
     }
   }
 
-  // uses MM SDK to query latest Faucet and user wallet balance
+  // uses MM SDK to query latest user USDC wallet balance
   async function updateBalances() {
     if (accounts.length > 0) {
-      const faucetBalance = await ethereum.request({
-        method: "eth_getBalance",
-        params: [RETURN_CONTRACT_ADDRESS, "latest"],
-      });
-      const walletBalance = await ethereum.request({
-        method: "eth_getBalance",
-        params: [accounts[0], "latest"],
-      });
+
+      const USDC = new ethers.Contract(USDC_ADDRESS, abi, provider);
+
+      const walletBalance = await USDC.balanceOf(accounts[0]);
+      console.log("Balance is", (walletBalance/ 10 ** 18));
       setWalletBalance(Number(walletBalance) / 10 ** 18);
     }
   }
@@ -185,12 +178,12 @@ function App() {
       <div className="wallet-container">
         <div className="wallet wallet-background">
           <div className="balance-container">
-            <h1 className="address-item">My Wallet</h1>
+            <h1 className="address-item">Return Vault Wallet</h1>
             <p className="balance-item">
               <b>Address:</b> {accounts[0]}
             </p>
             <p className="balance-item">
-              <b>Balance:</b> {walletBalance} Ξ
+              <b>Balance:</b> {walletBalance} USDC
             </p>
             <button
               className="button"
@@ -205,10 +198,25 @@ function App() {
       <div className="balance-container">
         <h2 className="balance-item">Circle Balance: 10k+ USDC</h2>
         <h2 className="balance-item">My Wallet Balance: {walletBalance} USDC</h2>
+        {isConnected
+          ? "Connected to MetaMask ✅"
+          : "Not connected to MetaMask ❌"}
       </div>
       <div className="button-container">
-        <button className="button">Withdraw 10 USDC</button>
-        <button className="button">Deposit 10 USDC</button>
+      <button
+            onClick={withdrawEther}
+            className="button"
+            disabled={!isConnected || !onRightNetwork}
+          >
+            Withdraw .01 ETH
+          </button>
+          <button
+            onClick={depositEther}
+            className="button"
+            disabled={!isConnected || !onRightNetwork}
+          >
+            Deposit .01 ETH
+          </button>
       </div>
     </div>
   );
