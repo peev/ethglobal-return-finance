@@ -1,5 +1,33 @@
+import MetaMaskSDK from "@metamask/sdk";
+import { ethers } from "ethers";
 import { useState } from "react";
 import "./App.css";
+
+// MetaMask SDK initialization
+const MMSDK = new MetaMaskSDK();
+const ethereum = MMSDK.getProvider();
+
+// This app will only work on Optimism
+const OPTIMISM_CHAIN_ID = "10";
+
+// Return Finance contract initialization
+const provider = new ethers.providers.Web3Provider(ethereum, "any");
+const RETURN_CONTRACT_ADDRESS = "0xad17a225074191d5c8a37b50fda1ae278a2ee6a2";
+
+const abi = [
+  {
+      "inputs": [],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+  },
+];
+const returnContract = new ethers.Contract(
+RETURN_CONTRACT_ADDRESS,
+abi,
+provider.getSigner()
+);
 
 function App() {
   const [walletBalance, setWalletBalance] = useState(0);
