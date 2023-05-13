@@ -1,4 +1,4 @@
-## Return.finance
+## Return Finance
 We enable mass adoption of DeFi by a user-friendly savings app that lets you earn up to a 10% APY on your fiat USD.
 
 ## Project Description
@@ -25,5 +25,13 @@ and then
 npm start
 ```
 ### Smart Contract 
+
+The Return Finance smart contract that acts as a yield-bearing vault is deployed on Optimism.
+
+The ERC-4626 standard is used to optimize and unify the technical parameters of our vault.
+
+The _depositToPools function distributes the deposited funds across USDC pools on AAVE and yEarn on Optimism.
+
+The _withdrawFromPools function unstakes the provided liquidity from AAVE and yEarn and enables the user to withdraw the principal, plus any yield generated.
 
 Live on Optimism: https://optimistic.etherscan.io/address/0xf68d87eb4a0b691cb186e6aae54b0870a3e4ef67
