@@ -14,12 +14,12 @@ function App() {
         </span>
       </h1>
       <div className="balance-container">
-        <h2 className="balance-item">Circle Balance: {faucetBalance}Ξ</h2>
-        <h2 className="balance-item">My Wallet Balance: {walletBalance} Ξ</h2>
+        <h2 className="balance-item">Circle Balance: {faucetBalance} USDC</h2>
+        <h2 className="balance-item">My Wallet Balance: {walletBalance} USDC</h2>
       </div>
       <div className="button-container">
-        <button className="button">Withdraw .01 ETH</button>
-        <button className="button">Deposit .01 ETH</button>
+        <button className="button">Withdraw 10 USDC</button>
+        <button className="button">Deposit 10 USDC</button>
       </div>
     </div>
   );
