@@ -45,6 +45,11 @@
   display: block;
   font-size: 1rem;
   margin-top: 1rem;
+  max-width: 800px;
+}
+
+p{
+  margin: 1rem 4rem;
 }
 
 .balance-container {
@@ -55,7 +60,7 @@
 }
 
 .balance-item {
-  font-size: 2rem;
+  font-size: 1rem;
   margin-right: 1rem;
 }
 
@@ -67,8 +72,8 @@
 }
 
 .button {
-  font-size: 1.8rem;
-  padding: 1rem 2rem;
+  font-size: 1rem;
+  padding: 1rem 1rem;
   background-color: #2452b6;
   color: white;
   border: none;
@@ -93,13 +98,19 @@
   height: 300px;
 }
 
+.system-image{
+  height: 330px;
+  padding: 0 3rem;
+
+}
+
 @media screen and (max-width: 768px) {
   .title {
     font-size: 2rem;
   }
 
   .balance-item {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .button {

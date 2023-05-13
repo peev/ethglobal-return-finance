@@ -26,7 +26,8 @@ provider.getSigner()
 );
 
 function App() {
-  const [walletBalance, setWalletBalance] = useState(0);
+  const [usdcBalance, setUSDCBalance] = useState(0);
+  const [ethBalance, setETHBalance] = useState(0);
   const [buttonText, setButtonText] = useState("Connect");
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [onRightNetwork, setOnRightNetwork] = useState(false);
@@ -80,9 +81,15 @@ function App() {
 
       const USDC = new ethers.Contract(USDC_ADDRESS, abi, provider);
 
+      const ethBalance = await ethereum.request({
+        method: "eth_getBalance",
+        params: [accounts[0], "latest"],
+      });
+
       var usdcBalance = await USDC.balanceOf(accounts[0]);
       usdcBalance = ethers.utils.formatUnits(usdcBalance, "6");
-      setWalletBalance(Math.round(usdcBalance * 100) / 100);
+      setUSDCBalance(Math.round(usdcBalance * 100) / 100);
+      setETHBalance(Number(ethBalance) / 10 ** 18);
     }
   }
 
@@ -167,23 +174,24 @@ function App() {
 
   return (
     <div className="container">
-      <img className="header-image" alt="" src="https://4033360328-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FCn5NyIfWAJDviT4SySgQ%2Fuploads%2FioJYt2OT0YM59pv5WasM%2FScreenshot%202023-01-10%20at%2022.26.10.png?alt=media&amp;token=142c82ac-855c-4fbf-8a07-e7de37d9eade"></img>
       <h1 className="title">
         Return Finance Demo App
-        <br></br>
-        <span className="subtitle">
-          This app allows you to simluate deposit and withdraw of 10 USDC from Circle Wallet to Return Finance smart contract.
-        </span>
       </h1>
+      <img className="header-image" alt="" src="https://4033360328-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FCn5NyIfWAJDviT4SySgQ%2Fuploads%2FioJYt2OT0YM59pv5WasM%2FScreenshot%202023-01-10%20at%2022.26.10.png?alt=media&amp;token=142c82ac-855c-4fbf-8a07-e7de37d9eade"></img>    
+        <span className="subtitle">
+        <p>Simluate deposit and withdraw of 12 USDC from Circle Wallet to Return Finance smart contract deployed on the Optimism network.</p>
+        <p>The current strategy distributes equal amounts of USD across yEarn USDC and AAVE USDC pools on Optimism.</p>
+        </span>
+      
       <div className="wallet-container">
         <div className="wallet wallet-background">
           <div className="balance-container">
-            <h1 className="address-item">Return Vault Wallet</h1>
+            <h1 className="address-item">Connect your wallet and stake USDC</h1>
             <p className="balance-item">
-              <b>Address:</b> {accounts[0]}
+              <b>My Wallet Address:</b> {accounts[0]}
             </p>
             <p className="balance-item">
-              <b>Balance:</b> {walletBalance} USDC
+              <b>My EHT Balance:</b> {ethBalance} Ξ
             </p>
             <button
               className="button"
@@ -196,8 +204,7 @@ function App() {
         </div>
       </div>
       <div className="balance-container">
-        <h2 className="balance-item">Circle Balance: 10k+ USDC</h2>
-        <h2 className="balance-item">My Wallet Balance: {walletBalance} USDC</h2>
+        <h2 className="balance-item">My USDC Balance: {usdcBalance} USDC</h2>
         {isConnected
           ? "Connected to MetaMask ✅"
           : "Not connected to MetaMask ❌"}
@@ -222,6 +229,11 @@ function App() {
             Withdraw 12 USDC + Yield
           </button>
       </div>  
+      {/* <div>
+      <p>Return Finance is building a bridge between the worlds of TradFi and DeFi via a platform designed for individuals and businesses to earn yield on their fiat USD.</p>
+        <p>Funds received from the traditional banking system are automatically converted into USDC through the Circel API and provided as liquidity to some of the leading trading and lending protocols such as Curve, AAVE, Uniswap and more comprehensive dApps such as yEarn, Convex and Conic Finance. </p>
+        <img className="system-image" alt="" src="/return-chart.jpg"></img>
+      </div> */}
     </div>
   );
 }
