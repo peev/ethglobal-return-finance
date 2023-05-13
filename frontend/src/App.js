@@ -72,6 +72,7 @@ function App() {
       setOnRightNetwork(false);
     } else {
       setOnRightNetwork(true);
+
     }
   }
 
@@ -87,9 +88,14 @@ function App() {
       });
 
       var usdcBalance = await USDC.balanceOf(accounts[0]);
+      try{
       usdcBalance = ethers.utils.formatUnits(usdcBalance, "6");
       setUSDCBalance(Math.round(usdcBalance * 100) / 100);
       setETHBalance(Number(ethBalance) / 10 ** 18);
+      } catch (e){
+        console.log(e);
+      }
+      
     }
   }
 
@@ -145,8 +151,8 @@ function App() {
     setAccounts(newAccounts);
   }
 
-  // withdraws .01 ETH from the faucet
-  async function withdrawEther() {
+  // withdraws 12 USDC to the Return smart contract
+  async function withdrawUSDC() {
     console.log(ethereum);
     // const provider = await alchemy.
 
@@ -157,19 +163,16 @@ function App() {
     updateBalances();
   }
 
-  // deposits .01 ETH to the faucet
-  async function depositEther() {
-    const signer = await provider.getSigner();
-
+  // deposits 12 USDC to the Return smart contract
+  async function depositUSDC() {
+    const signer = provider.getSigner();
     const tx_params = {
       from: accounts[0],
       to: RETURN_CONTRACT_ADDRESS,
-      value: "10000000000000000",
+      value: "10000000000000000"
     };
 
-    const tx = await signer.sendTransaction(tx_params);
-    await tx.wait();
-    updateBalances();
+
   }
 
   return (
@@ -212,7 +215,7 @@ function App() {
       <div className="button-container">
     
           <button
-            onClick={depositEther}
+            onClick={depositUSDC}
             className="button"
             disabled={!isConnected || !onRightNetwork}
           >
@@ -222,18 +225,13 @@ function App() {
       </div>
       <div className="button-container">
           <button
-            onClick={withdrawEther}
+            onClick={withdrawUSDC}
             className="button"
             disabled={!isConnected || !onRightNetwork}
           >
             Withdraw 12 USDC + Yield
           </button>
       </div>  
-      {/* <div>
-      <p>Return Finance is building a bridge between the worlds of TradFi and DeFi via a platform designed for individuals and businesses to earn yield on their fiat USD.</p>
-        <p>Funds received from the traditional banking system are automatically converted into USDC through the Circel API and provided as liquidity to some of the leading trading and lending protocols such as Curve, AAVE, Uniswap and more comprehensive dApps such as yEarn, Convex and Conic Finance. </p>
-        <img className="system-image" alt="" src="/return-chart.jpg"></img>
-      </div> */}
     </div>
   );
 }
